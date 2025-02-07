@@ -1,6 +1,6 @@
 package com.example.proyectoresidencias.App
 
-import android.content.Context
+
 import android.icu.text.DecimalFormat
 import android.os.Bundle
 import android.os.Environment
@@ -15,15 +15,12 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.proyectoresidencias.R
 import com.google.android.material.slider.RangeSlider
 import java.io.File
-import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
 
 
 class APP : AppCompatActivity() {
-    private val datosCSV = "id, Nombre, Escala 1, Escala 2"
-    private var esc1: Int = 0
-    private var esc2: Int = 0
+
     private lateinit var btnGuardar: AppCompatButton
     private lateinit var nombre: EditText
     private lateinit var numEsc1: TextView
