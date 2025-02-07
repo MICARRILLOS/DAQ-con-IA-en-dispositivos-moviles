@@ -56,12 +56,12 @@ class APP : AppCompatActivity() {
         selectEsc1.addOnChangeListener { selectEsc1, value, _ ->
             val df = DecimalFormat("#.##")
             val esc1 = df.format(value)
-            numEsc1.text = "$esc1"
+            numEsc1.text = esc1
         }
         selectEsc2.addOnChangeListener { selectEsc2, value, _ ->
             val df = DecimalFormat("#.##")
             val esc2 = df.format(value)
-            numEsc2.text = "$esc2"
+            numEsc2.text = esc2
         }
 
         btnGuardar.setOnClickListener {
