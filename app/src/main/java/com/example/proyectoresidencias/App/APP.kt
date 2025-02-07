@@ -98,7 +98,7 @@ class APP : AppCompatActivity() {
             e.printStackTrace()
             Toast.makeText(this, "Error al guardar el archivo", Toast.LENGTH_SHORT).show()
         }
-        /* Se guarda en la siguiente direccion
+        /* Se guarda en la siguiente direccion:
         /storage/self/primary/Android/data/com.example.proyectoresidencias/files/Documents/Datos.csv
          */
 
