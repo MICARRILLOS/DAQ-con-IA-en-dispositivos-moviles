@@ -105,7 +105,7 @@ class APP : AppCompatActivity() {
         /storage/self/primary/Android/data/com.example.proyectoresidencias/files/Documents/Datos.csv
          */
 
-        //hola
+
     }
 
 }
