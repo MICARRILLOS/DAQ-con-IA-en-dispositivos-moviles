@@ -2,9 +2,9 @@ package com.example.proyectoresidencias.App
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -27,17 +27,15 @@ class MostrasDatos : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         verDat= findViewById(R.id.verDat)
-        val file = File(filesDir, "Datos.txt")
+        val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
+        val file = File(carpetaDat, "Datos.txt")
         if (file.exists()) {
             // Leer el contenido del archivo
             val fileInputStream = file.inputStream()
             val reader = BufferedReader(InputStreamReader(fileInputStream))
-
             val datos = StringBuilder()
             reader.forEachLine { datos.append(it).append("\n") }
-
             // Mostrar los datos en el TextView
             verDat.text = datos.toString()
             // Leer los datos desde el archivo "datos"

@@ -75,7 +75,7 @@ class APP : AppCompatActivity() {
             val escala1 = selectEsc1.values[0].toInt()
             val escala2 = selectEsc2.values[0].toInt()
             if (name.isNotEmpty() && peSo.isNotEmpty() && edAd.isNotEmpty()){
-                    guardarDatos(name, peSo, edAd, escala1, escala2)
+                guardarDatos(name, peSo, edAd, escala1, escala2)
                 // Guardar los datos en un archivo
             } else {
                 Toast.makeText(this, "Por favor ingresa los datos", Toast.LENGTH_SHORT).show()
@@ -92,12 +92,14 @@ class APP : AppCompatActivity() {
         nombre.setText("")
         edad.setText("")
         peso.setText("")
-        selectEsc1.setValues(0f,0f) //con esto el rangeslider regresa a posición 0
-        selectEsc2.setValues(0f,0f)
+        selectEsc1.setValues(0f) //con esto el rangeslider regresa a posición 0
+        selectEsc2.setValues(0f)
         val csvData = "$name,$edAd,$peSo,$escala1,$escala2\n"
-        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos.txt") //permite guardar txt en directorio publico Documentos
+        val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
+        val file = File(carpetaDat, "Datos.txt") //permite guardar txt en directorio publico Documentos
         try {
             if (!file.exists()) {
+                carpetaDat.mkdirs()
                 file.createNewFile() // Crear el archivo si no existe
                 val writer = OutputStreamWriter(FileOutputStream(file, true))
                 writer.write("Nombre, Edad, Peso, Escala 1, Escala 2\n")
@@ -125,6 +127,5 @@ class APP : AppCompatActivity() {
         val intent = Intent(this, MostrasDatos::class.java)
         startActivity(intent)
     }
-
 
 }

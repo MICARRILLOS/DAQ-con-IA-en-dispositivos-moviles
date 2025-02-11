@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".App.APP"
     android:background="@color/white"
-    android:padding="1dp">
+    android:padding="5dp">
 
     <!-- cardview del nombre -->
     <androidx.cardview.widget.CardView
@@ -289,13 +289,27 @@
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:background="@drawable/btn_redondo"
-        android:text="DATOS"
+        android:text="VER DATOS"
         android:textSize="20sp"
         android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnGuardar"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="80dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnEditDat"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_redondo"
+        android:text="Editar Datos"
+        android:textSize="19sp"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/btnGuardar"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>
 
