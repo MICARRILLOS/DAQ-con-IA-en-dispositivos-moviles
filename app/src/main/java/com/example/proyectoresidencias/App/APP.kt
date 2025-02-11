@@ -3,6 +3,7 @@ package com.example.proyectoresidencias.App
 import android.content.Intent
 import android.icu.text.DecimalFormat
 import android.os.Bundle
+import android.os.Environment
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -94,7 +95,7 @@ class APP : AppCompatActivity() {
         selectEsc1.setValues(0f,0f) //con esto el rangeslider regresa a posición 0
         selectEsc2.setValues(0f,0f)
         val csvData = "$name,$edAd,$peSo,$escala1,$escala2\n"
-        val file = File(filesDir, "Datos.txt")
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos.txt") //permite guardar txt en directorio publico Documentos
         try {
             if (!file.exists()) {
                 file.createNewFile() // Crear el archivo si no existe
