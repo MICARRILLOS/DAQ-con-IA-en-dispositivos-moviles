@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -192,23 +193,24 @@
                 />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.cardview.widget.CardView>
-
-    <com.google.android.material.slider.RangeSlider
-        android:id="@+id/selectEsc1"
-        app:layout_constraintTop_toBottomOf="@id/carEs1"
-        android:layout_marginTop="0dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:stepSize="1"
-        android:valueFrom="0"
-        android:valueTo="10"
-        app:thumbColor="#0819EF"
-        app:tickColor="@color/black"
-        app:trackColor="@color/black"
-        android:background="@color/white"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        />
+<com.google.android.material.slider.RangeSlider
+    android:id="@+id/selectEsc1"
+    app:layout_constraintTop_toBottomOf="@id/carEs1"
+    android:layout_marginTop="0dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:stepSize="1"
+    android:valueFrom="0"
+    android:valueTo="10"
+    android:layout_marginStart="20dp"
+    android:layout_marginEnd="20dp"
+    app:thumbColor="#0819EF"
+    app:haloColor="@color/teal_200"
+    android:background="@color/white"
+    app:trackHeight="6dp"
+    app:trackColorInactive="#0819EF"
+    app:trackColorActive="@color/black"
+    />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/carEs2"
@@ -251,8 +253,6 @@
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.cardview.widget.CardView>
 
-
-
     <com.google.android.material.slider.RangeSlider
         android:id="@+id/selectEsc2"
         app:layout_constraintTop_toBottomOf="@id/carEs2"
@@ -262,12 +262,14 @@
         android:stepSize="1"
         android:valueFrom="0"
         android:valueTo="10"
-        app:thumbColor="#0819EF"
-        app:tickColor="@color/black"
-        app:trackColor="@color/black"
-        android:background="@color/white"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        app:thumbColor="#0819EF"
+        app:haloColor="@color/teal_200"
+        android:background="@color/white"
+        app:trackColorInactive="#0819EF"
+        app:trackColorActive="@color/black"
+        app:trackHeight="6dp"
         />
 
     <androidx.appcompat.widget.AppCompatButton

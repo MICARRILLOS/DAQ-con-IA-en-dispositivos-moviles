@@ -1,6 +1,5 @@
 package com.example.proyectoresidencias.App
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.widget.TextView
@@ -11,10 +10,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.proyectoresidencias.R
 import java.io.BufferedReader
 import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.OutputStreamWriter
+
 
 class MostrasDatos : AppCompatActivity() {
     lateinit var verDat: TextView
@@ -43,7 +40,7 @@ class MostrasDatos : AppCompatActivity() {
             reader.close()
         } else {
             // Si el archivo no existe, mostrar un mensaje
-            verDat.text = "No se encontraron datos guardados."
+            "No se encontraron datos guardados".also { verDat.text = it }
         }
     }
 }

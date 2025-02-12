@@ -2,14 +2,18 @@ package com.example.proyectoresidencias.App
 
 import android.content.Intent
 import android.icu.text.DecimalFormat
+import android.icu.text.SimpleDateFormat
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.proyectoresidencias.R
@@ -19,8 +23,9 @@ import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
 import java.io.OutputStreamWriter
-
-
+import java.util.Date
+import java.util.Locale
+import androidx.activity.result.ActivityResultLauncher
 class APP : AppCompatActivity() {
     private lateinit var btnGuardar: AppCompatButton
     private lateinit var btnArch: AppCompatButton
@@ -31,7 +36,8 @@ class APP : AppCompatActivity() {
     private lateinit var numEsc2: TextView
     private lateinit var selectEsc1: RangeSlider
     private lateinit var selectEsc2: RangeSlider
-
+    private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
+    private var imageUri: Uri? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -41,8 +47,16 @@ class APP : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                Toast.makeText(this, "Imagen guardada en: ${imageUri?.path}", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, "Error al tomar la foto", Toast.LENGTH_SHORT).show()
+            }
+        }
         compInicio()
         inicioListener()
+
     }
 
     private fun compInicio() {
@@ -76,6 +90,7 @@ class APP : AppCompatActivity() {
             val escala2 = selectEsc2.values[0].toInt()
             if (name.isNotEmpty() && peSo.isNotEmpty() && edAd.isNotEmpty()){
                 guardarDatos(name, peSo, edAd, escala1, escala2)
+                tomarFoto()
                 // Guardar los datos en un archivo
             } else {
                 Toast.makeText(this, "Por favor ingresa los datos", Toast.LENGTH_SHORT).show()
@@ -85,7 +100,6 @@ class APP : AppCompatActivity() {
             verDatos()
         }
     }
-
 
     private fun guardarDatos(name:String, peSo:String, edAd:String, escala1: Int, escala2:Int) {
         //Al presionar "ARCHIVAR" los campos se ponen en blanco
@@ -112,6 +126,7 @@ class APP : AppCompatActivity() {
             fileWriter.flush()
             fileWriter.close()//Si no se pone este comando no se guarda el dato
             Toast.makeText(this, "Datos guardados con éxito", Toast.LENGTH_SHORT).show()
+            tomarFoto()
         } catch (e: IOException){
             e.printStackTrace()
             Toast.makeText(this, "Error al guardar el archivo", Toast.LENGTH_SHORT).show()
@@ -120,7 +135,6 @@ class APP : AppCompatActivity() {
         /storage/self/primary/Android/data/com.example.proyectoresidencias/files/Documents/Datos.csv
          */
     }
-
     //ABRIR ARCHIVO DESDE LA APP
     private fun verDatos(){
         //De aquí te manda a la otra pantalla
@@ -128,4 +142,31 @@ class APP : AppCompatActivity() {
         startActivity(intent)
     }
 
+    private fun tomarFoto() {
+        val photoFile = createImageFile()
+        if (photoFile != null) {
+            imageUri = FileProvider.getUriForFile(this, "${packageName}.provider", photoFile)
+            cameraLauncher.launch(imageUri!!)
+        } else {
+            Toast.makeText(this, "No se pudo crear el archivo", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun createImageFile(): File? {
+        val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        return try {
+            File.createTempFile( "IMG_$timeStamp", ".jpg", carpetaDat)
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
 }
+
+
+
+
+
+
