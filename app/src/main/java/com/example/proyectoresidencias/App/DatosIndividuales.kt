@@ -40,10 +40,8 @@ class DatosIndividuales : AppCompatActivity() {
             val datosEncontrados = reader.useLines { lines ->
                 lines.find { it.startsWith(name, ignoreCase = true) } // Busca la primera coincidencia
             }
-            nombreInd.text =  datosEncontrados
-
             // Mostrar resultado en el TextView
-
+            nombreInd.text =  datosEncontrados
             reader.close()
         } else {
             // Si el archivo no existe, mostrar un mensaje
