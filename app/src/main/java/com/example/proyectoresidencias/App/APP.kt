@@ -1,8 +1,8 @@
 package com.example.proyectoresidencias.App
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.icu.text.DecimalFormat
-import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -23,9 +23,8 @@ import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
 import java.io.OutputStreamWriter
-import java.util.Date
-import java.util.Locale
 import androidx.activity.result.ActivityResultLauncher
+
 class APP : AppCompatActivity() {
     private lateinit var btnGuardar: AppCompatButton
     private lateinit var btnArch: AppCompatButton
@@ -38,6 +37,7 @@ class APP : AppCompatActivity() {
     private lateinit var selectEsc2: RangeSlider
     private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
     private var imageUri: Uri? = null
+    private val sharedPrefFile = "MySharedPref"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -56,9 +56,7 @@ class APP : AppCompatActivity() {
         }
         compInicio()
         inicioListener()
-
     }
-
     private fun compInicio() {
         numEsc1 = findViewById(R.id.numEsc1)
         selectEsc1 = findViewById(R.id.selectEsc1)
@@ -70,8 +68,7 @@ class APP : AppCompatActivity() {
         peso = findViewById(R.id.peso)
         edad = findViewById(R.id.edad)
     }
-
-    private fun inicioListener() {
+    private fun inicioListener(){
         selectEsc1.addOnChangeListener { selectEsc1, value, _ ->
             val df = DecimalFormat("#.##")
             val esc1 = df.format(value)
@@ -90,7 +87,6 @@ class APP : AppCompatActivity() {
             val escala2 = selectEsc2.values[0].toInt()
             if (name.isNotEmpty() && peSo.isNotEmpty() && edAd.isNotEmpty()){
                 guardarDatos(name, peSo, edAd, escala1, escala2)
-                tomarFoto()
                 // Guardar los datos en un archivo
             } else {
                 Toast.makeText(this, "Por favor ingresa los datos", Toast.LENGTH_SHORT).show()
@@ -119,14 +115,21 @@ class APP : AppCompatActivity() {
                 writer.write("Nombre, Edad, Peso, Escala 1, Escala 2\n")
                 //Se escribe como encabezado del archivo al solo crearse
                 writer.close()
+                tomarFoto(name)
             }
-            //val writer = OutputStreamWriter(FileOutputStream(file, true))
             val fileWriter = FileWriter(file, true)
             fileWriter.append(csvData)  // Agregar los datos al archivo
             fileWriter.flush()
             fileWriter.close()//Si no se pone este comando no se guarda el dato
             Toast.makeText(this, "Datos guardados con éxito", Toast.LENGTH_SHORT).show()
-            tomarFoto()
+            val sharedPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            // Obtiene la lista de nombres existente y agrega el nuevo
+            val listaNombres = sharedPreferences.getStringSet("Nombres", mutableSetOf()) ?: mutableSetOf()
+            listaNombres.add(name) //Crea el boton con el nombre guardado
+            editor.putStringSet("Nombres", listaNombres)
+            editor.apply()
+            tomarFoto(name)
         } catch (e: IOException){
             e.printStackTrace()
             Toast.makeText(this, "Error al guardar el archivo", Toast.LENGTH_SHORT).show()
@@ -141,29 +144,24 @@ class APP : AppCompatActivity() {
         val intent = Intent(this, MostrasDatos::class.java)
         startActivity(intent)
     }
-
-    private fun tomarFoto() {
-        val photoFile = createImageFile()
-        if (photoFile != null) {
+    private fun tomarFoto(name:String){
+        val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
+        val photoFile = File(carpetaDat, "$name.jpg")
+        photoFile.createNewFile()
+        if (!photoFile.createNewFile()) {
             imageUri = FileProvider.getUriForFile(this, "${packageName}.provider", photoFile)
             cameraLauncher.launch(imageUri!!)
         } else {
             Toast.makeText(this, "No se pudo crear el archivo", Toast.LENGTH_SHORT).show()
         }
     }
-
-    private fun createImageFile(): File? {
-        val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        return try {
-            File.createTempFile( "IMG_$timeStamp", ".jpg", carpetaDat)
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null
-        }
-    }
 }
+
+
+
+
+
+
 
 
 
