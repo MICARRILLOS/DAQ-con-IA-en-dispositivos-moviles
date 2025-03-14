@@ -1,8 +1,11 @@
 package com.example.proyectoresidencias.App
 
-import android.annotation.SuppressLint
+import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.icu.text.DecimalFormat
+import android.provider.Settings
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -24,6 +27,8 @@ import java.io.FileWriter
 import java.io.IOException
 import java.io.OutputStreamWriter
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.content.ContextCompat
+import org.opencv.android.OpenCVLoader
 
 class APP : AppCompatActivity() {
     private lateinit var btnGuardar: AppCompatButton
@@ -38,10 +43,12 @@ class APP : AppCompatActivity() {
     private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
     private var imageUri: Uri? = null
     private val sharedPrefFile = "MySharedPref"
+    private val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_app)
+        OpenCVLoader.initLocal() // Inicializar OpenCV
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -69,6 +76,7 @@ class APP : AppCompatActivity() {
         edad = findViewById(R.id.edad)
     }
     private fun inicioListener(){
+
         selectEsc1.addOnChangeListener { selectEsc1, value, _ ->
             val df = DecimalFormat("#.##")
             val esc1 = df.format(value)
@@ -85,37 +93,44 @@ class APP : AppCompatActivity() {
             val edAd = edad.text.toString().trim()
             val escala1 = selectEsc1.values[0].toInt()
             val escala2 = selectEsc2.values[0].toInt()
+            val csvData = "$name,$edAd,$peSo,$escala1,$escala2\n"
+            val fotoName = "$name,$edAd,$peSo,$escala1,$escala2"
             if (name.isNotEmpty() && peSo.isNotEmpty() && edAd.isNotEmpty()){
-                guardarDatos(name, peSo, edAd, escala1, escala2)
-                // Guardar los datos en un archivo
+                verificarPermisoCamara(csvData, name, fotoName)//funcion pedir permiso camara
             } else {
                 Toast.makeText(this, "Por favor ingresa los datos", Toast.LENGTH_SHORT).show()
             }
         }
-        btnArch.setOnClickListener {
-            verDatos()
+        btnArch.setOnClickListener {// Ver datos
+            val intent = Intent(this, MostrasDatos::class.java)
+            startActivity(intent)
         }
     }
 
-    private fun guardarDatos(name:String, peSo:String, edAd:String, escala1: Int, escala2:Int) {
+    private fun verificarPermisoCamara(csvData:String, name:String, fotoName: String) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            guardarDatos(csvData, name, fotoName) // Si el permiso ya está concedido, guardar los datos
+        } else {
+            mostrarDialogoPermiso() // Si no, mostrar mensaje de permisos
+        }
+    }
+    private fun guardarDatos(csvData:String, name:String, fotoName: String) {
         //Al presionar "ARCHIVAR" los campos se ponen en blanco
-        nombre.setText("")
-        edad.setText("")
+        nombre.setText("")// borra el campo de edittext
+        edad.text.clear()// otra forma de borrar el campo de edittext
         peso.setText("")
         selectEsc1.setValues(0f) //con esto el rangeslider regresa a posición 0
         selectEsc2.setValues(0f)
-        val csvData = "$name,$edAd,$peSo,$escala1,$escala2\n"
-        val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
         val file = File(carpetaDat, "Datos.txt") //permite guardar txt en directorio publico Documentos
         try {
-            if (!file.exists()) {
+            if (!file.exists()){
                 carpetaDat.mkdirs()
                 file.createNewFile() // Crear el archivo si no existe
                 val writer = OutputStreamWriter(FileOutputStream(file, true))
                 writer.write("Nombre, Edad, Peso, Escala 1, Escala 2\n")
                 //Se escribe como encabezado del archivo al solo crearse
                 writer.close()
-                tomarFoto(name)
+                tomarFoto(fotoName)//agregar desde aquí time stamp
             }
             val fileWriter = FileWriter(file, true)
             fileWriter.append(csvData)  // Agregar los datos al archivo
@@ -123,13 +138,13 @@ class APP : AppCompatActivity() {
             fileWriter.close()//Si no se pone este comando no se guarda el dato
             Toast.makeText(this, "Datos guardados con éxito", Toast.LENGTH_SHORT).show()
             val sharedPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
+            val nombres = mutableSetOf<String>()
             // Obtiene la lista de nombres existente y agrega el nuevo
-            val listaNombres = sharedPreferences.getStringSet("Nombres", mutableSetOf()) ?: mutableSetOf()
-            listaNombres.add(name) //Crea el boton con el nombre guardado
-            editor.putStringSet("Nombres", listaNombres)
+            nombres.add(name) //Crea el boton con el nombre guardado
+            val editor = sharedPreferences.edit()
+            editor.putStringSet("Nombres", nombres)
             editor.apply()
-            tomarFoto(name)
+            tomarFoto(fotoName)//agregar desde aquí time stamp
         } catch (e: IOException){
             e.printStackTrace()
             Toast.makeText(this, "Error al guardar el archivo", Toast.LENGTH_SHORT).show()
@@ -139,14 +154,10 @@ class APP : AppCompatActivity() {
          */
     }
     //ABRIR ARCHIVO DESDE LA APP
-    private fun verDatos(){
-        //De aquí te manda a la otra pantalla
-        val intent = Intent(this, MostrasDatos::class.java)
-        startActivity(intent)
-    }
-    private fun tomarFoto(name:String){
-        val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
-        val photoFile = File(carpetaDat, "$name.jpg")
+    private fun tomarFoto(fotoName:String){
+        //val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        //val fotName = "$fotoName"//"$name$timeStamp"
+        val photoFile = File(carpetaDat, "$fotoName.jpg")
         photoFile.createNewFile()
         if (!photoFile.createNewFile()) {
             imageUri = FileProvider.getUriForFile(this, "${packageName}.provider", photoFile)
@@ -154,6 +165,24 @@ class APP : AppCompatActivity() {
         } else {
             Toast.makeText(this, "No se pudo crear el archivo", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun mostrarDialogoPermiso() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Permiso necesario")
+        builder.setMessage("Es necesario dar permiso para la cámara")
+        builder.setPositiveButton("Ir a permisos") { _, _ ->
+            abrirConfiguracionApp() // Abrir configuración de la app
+        }
+        builder.setNegativeButton("Cancelar", null)
+        builder.show()
+    }
+
+    private fun abrirConfiguracionApp() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", packageName, null)
+        }
+        startActivity(intent)
     }
 }
 

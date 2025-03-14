@@ -20,6 +20,12 @@
         android:theme="@style/Theme.ProyectoResidencias"
         tools:targetApi="31">
         <activity
+            android:name=".App.Menu_Propietario_Mascota"
+            android:exported="false" />
+        <activity
+            android:name=".App.vistaDatosyFoto"
+            android:exported="false" />
+        <activity
             android:name=".App.DatosIndividuales"
             android:exported="false" />
         <activity

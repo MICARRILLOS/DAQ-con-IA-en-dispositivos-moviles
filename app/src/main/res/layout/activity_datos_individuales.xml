@@ -12,9 +12,10 @@
     >
 
     <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/linearnombreInd"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
-        android:layout_margin="16dp"
+        android:padding="30dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
@@ -27,5 +28,14 @@
             />
     </androidx.appcompat.widget.LinearLayoutCompat>
 
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/linearfotoInd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/linearnombreInd"
+        android:padding="30dp"
+    >
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
