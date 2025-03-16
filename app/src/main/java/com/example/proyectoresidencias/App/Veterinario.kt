@@ -30,7 +30,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import org.opencv.android.OpenCVLoader
 
-class APP : AppCompatActivity() {
+class Veterinario : AppCompatActivity() {
     private lateinit var btnGuardar: AppCompatButton
     private lateinit var btnArch: AppCompatButton
     private lateinit var nombre: EditText
@@ -47,7 +47,7 @@ class APP : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_app)
+        setContentView(R.layout.activity_veterinario)
         OpenCVLoader.initLocal() // Inicializar OpenCV
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

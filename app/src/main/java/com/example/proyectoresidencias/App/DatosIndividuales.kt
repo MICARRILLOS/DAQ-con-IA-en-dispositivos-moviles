@@ -102,6 +102,7 @@ class DatosIndividuales : AppCompatActivity() {
                     for (j in 0 until tamBlock) {
                         if (y + i < newHeight && x + j < newWidth) {
                             block[i][j] = nvoBitmap.getPixel(x + j, y + i)
+
                         } else {
                             // Si se sale de los límites, rellenar con blanco
                             block[i][j] = Color.WHITE
@@ -118,10 +119,8 @@ class DatosIndividuales : AppCompatActivity() {
                 }
             }
         }
-
         return nvoBitmap
     }
-
     private fun filtroGauss(blocks: Array<IntArray>): Array<Array<Int>> {
         val size = blocks.size
         val kernel = arrayOf(
@@ -182,18 +181,5 @@ class DatosIndividuales : AppCompatActivity() {
         return bloquesFiltrados
     }
 
-    /*private fun Gauss(bitmap:Bitmap): Bitmap{
-        val mat = Mat()
-        val bmp32 = bitmap.copy(Bitmap.Config.ARGB_8888, true)
 
-        org.opencv.android.Utils.bitmapToMat(bmp32, mat)
-
-        // Aplicar filtro Gaussiano
-        Imgproc.GaussianBlur(mat, mat, Size(9.0, 9.0), 0.0)
-
-        val resultBitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
-        org.opencv.android.Utils.matToBitmap(mat, resultBitmap)
-
-        return resultBitmap
-    }*/
 }
