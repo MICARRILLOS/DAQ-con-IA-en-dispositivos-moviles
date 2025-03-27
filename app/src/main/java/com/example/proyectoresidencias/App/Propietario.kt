@@ -67,7 +67,7 @@ class Propietario : AppCompatActivity() {
                 writer.write("Nombre, Edad, Peso\n")
                 //Se escribe como encabezado del archivo al solo crearse
                 writer.close()
-                setResult(Activity.RESULT_OK) // Opcional: puedes enviar datos de vuelta
+                setResult(Activity.RESULT_OK) // Enviar datos de vuelta
                 finish() // Cierra el activity actual
             }
             val fileWriter = FileWriter(file, true)
