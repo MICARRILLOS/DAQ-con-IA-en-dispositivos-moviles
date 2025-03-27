@@ -144,7 +144,6 @@ class Veterinario : AppCompatActivity() {
 
         cameraLauncher.launch(imageUri!!)
     }
-
     private fun verificarPermisoCamara(csvData:String, fotoName: String) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             guardarDatos(csvData, fotoName) // Si el permiso ya está concedido, guardar los datos
