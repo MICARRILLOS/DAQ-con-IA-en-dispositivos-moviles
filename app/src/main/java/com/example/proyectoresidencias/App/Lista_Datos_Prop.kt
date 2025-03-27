@@ -99,15 +99,11 @@ class Lista_Datos_Prop : AppCompatActivity() {
     }
 
     private fun setupFiltroProp() {
-        // 1. Asegúrate de tener un EditText con id editTextFiltro en tu layout
         buscarNombreProp = findViewById(R.id.buscarNombreProp)
-
-        // 2. Listener para detectar cambios en el texto
         buscarNombreProp.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 filtrarNombres(s.toString())
             }
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -123,7 +119,7 @@ class Lista_Datos_Prop : AppCompatActivity() {
                 val nombre = dato.split(",")[0]
                 nombre.contains(textoBusqueda, ignoreCase = true)
             }
-            // Ordenar por mejor coincidencia (opcional)
+            // Ordenar por mejor coincidencia
             val resultadosOrdenados = resultados.sortedBy { dato ->
                 val nombre = dato.split(",")[0]
                 // Prioriza coincidencias al inicio del nombre
