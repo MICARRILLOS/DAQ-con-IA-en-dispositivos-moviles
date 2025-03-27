@@ -1,118 +1,163 @@
 package com.example.proyectoresidencias.App
 
+import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Environment
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
-import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.proyectoresidencias.R
 import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
+import java.io.FileReader
+
 
 class MostrasDatos : AppCompatActivity() {
-    private lateinit var verDat: TextView
-    private lateinit var container: LinearLayoutCompat
+    private lateinit var agregarDat: AppCompatButton
+    private lateinit var NoDat: TextView
     private lateinit var buscarNombre: AppCompatEditText
-    private val listaBotones = mutableListOf<AppCompatButton>()
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: NombresAdapter
+    private val listaOriginal = mutableListOf<String>()
     private val listaNames = mutableListOf<String>()
-    private val sharedPrefFile = "MySharedPref"
-    private val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
+    private  val carpetaDat= File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
+    private val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Actualizar los datos cuando regresamos de Veterinario
+            botones()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_mostras_datos)
-        //OpenCVLoader.initLocal() // Inicializar OpenCV
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         inicio()
-        barraNombres()
+        setupRecyclerView()
         botones()
     }
     private fun inicio(){
-        verDat = findViewById(R.id.verDat)
-        container = findViewById(R.id.container)
+        NoDat = findViewById(R.id.NoDat)
         buscarNombre = findViewById(R.id.buscarNombre)
+        agregarDat = findViewById(R.id.agregarDat)
+        agregarDat.setOnClickListener {
+            val intent = Intent(this@MostrasDatos, Veterinario::class.java)
+            startForResult.launch(intent) // Usa el launcher en lugar de startActivity
+        }
     }
-    private fun barraNombres(){
-        buscarNombre.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                filtrarBotones(s.toString()) // Llamar a la función de filtrado
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
 
-    }
-    private fun botones(){//Funcion que crea btns con nombre conforme se va guardando datos
+    private fun botones() {
         val file = File(carpetaDat, "Datos.txt")
-        if (file.exists()){
-            val reader = BufferedReader(InputStreamReader(file.inputStream()))
-            var primerLinea = true
-            reader.forEachLine { line ->//lee cada linea del archivo
-                if (primerLinea) {
-                    primerLinea = false // Ignorar el primer renglón (título)
-                } else {
-                    listaNames.add(line)//Agrega a la lista todos los datos de la linea
-                } // Agrega todos los datos, incluso duplicados
-            }
-            reader.close()
-            listaNames.forEach { datos ->
-                val name = datos.split(",")[0]
-                //line.split(",") divide la línea en una lista de elementos separados por comas.
-                //[0] toma solo el primer elemento de la lista (el dato antes de la primera coma).
-                val button = AppCompatButton(this).apply {
-                    text = name
-                    setBackgroundResource(R.drawable.btn_redondo)
-                    setTextColor(Color.WHITE)
-                    layoutParams = LinearLayoutCompat.LayoutParams(
-                        LinearLayoutCompat.LayoutParams.MATCH_PARENT,
-                        LinearLayoutCompat.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        setMargins(16, 16, 16, 16)
-                    }
-                    setOnClickListener {
-                        Toast.makeText(this@MostrasDatos, "Presionaste: $name", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this@MostrasDatos, DatosIndividuales::class.java)
-                        intent.putExtra("datos", datos ) // Enviar el nombre a la nueva actividad
-                        intent.putExtra("name", name)
-                        startActivity(intent)
+        if (file.exists() && file.length() > 0) {
+            try {
+                listaNames.clear()
+                listaOriginal.clear()
+                BufferedReader(FileReader(file)).use { reader ->
+                    var primerLinea = true
+                    reader.forEachLine { line ->
+                        if (!primerLinea && line.isNotBlank()) {
+                            listaOriginal.add(line)
+                            listaNames.add(line)
+                        }
+                        primerLinea = false
                     }
                 }
-                listaBotones.add(button)
-                container.addView(button)
+                if (listaNames.isEmpty()) {
+                    mostrarSinDatos()
+                } else {
+                    NoDat.visibility = View.GONE
+                    adapter.notifyDataSetChanged()
+                }
+            } catch (e: Exception) {
+                mostrarErrorLectura()
             }
+            setupFiltro()
         }
         else {
-            // Si el archivo no existe, mostrar un mensaje
-            "No se encontraron datos guardados".also { verDat.text = it }
-            val sharedPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.remove("Nombres") // Borra los datos almacenados
-            editor.apply()
-            container.removeAllViews() // Elimina todos los botones
-            Toast.makeText(this, "Sin datos", Toast.LENGTH_SHORT).show()
+            mostrarSinDatos()
         }
     }
-    private fun filtrarBotones(texto: String) {
-        container.removeAllViews() // Eliminar todos los botones visibles
-        listaBotones.forEachIndexed { index, button ->
-            if (listaNames[index].contains(texto, ignoreCase = true)) {
-                container.addView(button) // Mostrar solo los botones que coincidan
+
+    private fun mostrarSinDatos() {
+        "No se encontraron datos guardados".also { NoDat.text = it }
+        listaNames.clear()
+        adapter.notifyDataSetChanged()
+        Toast.makeText(this, "Sin datos", Toast.LENGTH_SHORT).show()
+    }
+    private fun mostrarErrorLectura() {
+        Toast.makeText(this, "Error al leer los datos", Toast.LENGTH_SHORT).show()
+        listaNames.clear()
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun setupFiltro() {
+        // 1. Asegúrate de tener un EditText con id editTextFiltro en tu layout
+        buscarNombre = findViewById(R.id.buscarNombre)
+
+        // 2. Listener para detectar cambios en el texto
+        buscarNombre.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                filtrarNombres(s.toString())
             }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+    }
+    private fun filtrarNombres(textoBusqueda: String) {
+        if (textoBusqueda.isEmpty()) {
+            // Si no hay texto, mostrar todos los elementos
+            listaNames.clear()
+            listaNames.addAll(listaOriginal)
+        } else {
+            // Algoritmo de filtrado por coincidencia
+            val resultados = listaOriginal.filter { dato ->
+                val nombre = dato.split(",")[0]
+                nombre.contains(textoBusqueda, ignoreCase = true)
+            }
+
+            // Ordenar por mejor coincidencia (opcional)
+            val resultadosOrdenados = resultados.sortedBy { dato ->
+                val nombre = dato.split(",")[0]
+                // Prioriza coincidencias al inicio del nombre
+                nombre.indexOf(textoBusqueda, ignoreCase = true).takeIf { it >= 0 } ?: Int.MAX_VALUE
+            }
+
+            // Actualizar la lista mostrada
+            listaNames.clear()
+            listaNames.addAll(resultadosOrdenados)
         }
+
+        // Notificar al adaptador que los datos cambiaron
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun setupRecyclerView() {
+        recyclerView = findViewById(R.id.recyclerView) // Asegúrate de tener este ID en tu layout
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = NombresAdapter(listaNames) { datos, name ->
+            Toast.makeText(this, "Presionaste: $name", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, DatosIndividuales::class.java)
+            intent.putExtra("datos", datos)
+            startActivity(intent)
+        }
+        recyclerView.adapter = adapter
     }
 }

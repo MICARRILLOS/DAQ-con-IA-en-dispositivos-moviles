@@ -12,36 +12,27 @@
     android:padding="5dp">
 
     <!-- cardview del nombre -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cuadroNombre"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:cardBackgroundColor="@color/white"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        app:cardElevation="0dp"
-        >
         <!-- app:cardElevation="0dp" Elmina el sombreado inferior de la cardview -->
         <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/cuadroNombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_margin="20dp"
             android:gravity="center"
-            android:orientation="vertical">
-
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:cardBackgroundColor="@color/white"
+            app:layout_constraintTop_toTopOf="parent"
+            >
             <TextView
+                android:text="Nombre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Nombre"
                 android:textColor="@color/black"
                 android:textSize="23sp"
                 />
-
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/nombre"
                 android:layout_width="match_parent"
@@ -54,29 +45,20 @@
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-
         </androidx.appcompat.widget.LinearLayoutCompat>
-    </androidx.cardview.widget.CardView>
     <!-- cardview de edad -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardEdad"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cuadroNombre"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/white"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        >
+
         <!-- app:cardElevation="0dp" Elmina el sombreado inferior de la cardview -->
         <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/cardEdad"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_margin="20dp"
             android:gravity="center"
             android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="@id/cuadroNombre"
+            app:layout_constraintTop_toBottomOf="@id/cuadroNombre"
+            app:cardBackgroundColor="@color/white"
             >
             <TextView
                 android:layout_width="wrap_content"
@@ -102,28 +84,19 @@
 
                 tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
         </androidx.appcompat.widget.LinearLayoutCompat>
-    </androidx.cardview.widget.CardView>
 
     <!-- cardview de peso -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardPeso"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardEdad"
-        app:cardBackgroundColor="@color/white"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        app:cardElevation="0dp"
-        >
         <!-- app:cardElevation="0dp" Elmina el sombreado inferior de la cardview -->
         <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/cardPeso"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            app:layout_constraintStart_toStartOf="@id/cardEdad"
+            app:layout_constraintTop_toBottomOf="@id/cardEdad"
+            android:layout_margin="20dp"
             android:gravity="center"
             android:orientation="vertical"
+            app:cardBackgroundColor="@color/white"
             >
             <TextView
                 android:layout_width="wrap_content"
@@ -148,32 +121,25 @@
                 android:textSize="20sp"
                 tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
         </androidx.appcompat.widget.LinearLayoutCompat>
-    </androidx.cardview.widget.CardView>
 
 <!-- app:cardCornerRadius="12dp" es para redondear esquinas de cardview -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/carEs1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="300dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardElevation="0dp"
-        >
+
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardPeso"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="60dp"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:id="@+id/carEs1"
+            >
             <TextView
+                android:text="Escala 1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Escala 1"
                 android:textColor="@color/black"
                 android:textSize="23sp"
                 android:layout_gravity="center"
@@ -181,16 +147,15 @@
                 />
             <TextView
                 android:id="@+id/numEsc1"
+                android:text="0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
                 android:textColor="@color/black"
                 android:textSize="25sp"
                 android:layout_gravity="center"
                 android:textStyle="normal"
                 />
         </androidx.appcompat.widget.LinearLayoutCompat>
-    </androidx.cardview.widget.CardView>
 
     <com.google.android.material.slider.RangeSlider
         android:id="@+id/selectEsc1"
@@ -207,24 +172,16 @@
         app:trackColorInactive="#0819EF"
         app:trackHeight="6dp"
         tools:ignore="SpeakableTextPresentCheck"
-        tools:layout_editor_absoluteX="25dp" />
+        tools:layout_editor_absoluteX="25dp"/>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/carEs2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="450dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardElevation="0dp"
-        >
         <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/carEs2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/selectEsc1"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="40dp"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -248,8 +205,6 @@
                 android:textStyle="normal"
                 />
         </androidx.appcompat.widget.LinearLayoutCompat>
-    </androidx.cardview.widget.CardView>
-
     <com.google.android.material.slider.RangeSlider
         android:id="@+id/selectEsc2"
         android:layout_width="match_parent"
@@ -268,30 +223,18 @@
         tools:layout_editor_absoluteX="25dp" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnGuardar"
+
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:background="@drawable/btn_redondo"
-        android:text="guardar"
         android:textSize="20sp"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="150dp"
-        android:layout_marginStart="30dp"
-        />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnArch"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_redondo"
-        android:text="VER DATOS"
-        android:textSize="20sp"
-        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/btnGuardar"
-        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="100dp"
+        android:id="@+id/btnGuardar"
+        android:text="guardar"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

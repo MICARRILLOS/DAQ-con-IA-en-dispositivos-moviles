@@ -18,9 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.proyectoresidencias.R
 import java.io.File
 import org.opencv.android.OpenCVLoader
-import org.opencv.core.Mat
-import org.opencv.core.Size
-import org.opencv.imgproc.Imgproc
+
 
 class DatosIndividuales : AppCompatActivity() {
     private lateinit var nombreInd: TextView
@@ -180,6 +178,5 @@ class DatosIndividuales : AppCompatActivity() {
         }
         return bloquesFiltrados
     }
-
 
 }

@@ -1,6 +1,7 @@
 package com.example.proyectoresidencias.App
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -28,11 +29,9 @@ import java.io.IOException
 import java.io.OutputStreamWriter
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
-import org.opencv.android.OpenCVLoader
 
 class Veterinario : AppCompatActivity() {
     private lateinit var btnGuardar: AppCompatButton
-    private lateinit var btnArch: AppCompatButton
     private lateinit var nombre: EditText
     private lateinit var peso: EditText
     private lateinit var edad: EditText
@@ -42,13 +41,12 @@ class Veterinario : AppCompatActivity() {
     private lateinit var selectEsc2: RangeSlider
     private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
     private var imageUri: Uri? = null
-    private val sharedPrefFile = "MySharedPref"
     private val carpetaDat = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Datos")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_veterinario)
-        OpenCVLoader.initLocal() // Inicializar OpenCV
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -56,7 +54,9 @@ class Veterinario : AppCompatActivity() {
         }
         cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
-                Toast.makeText(this, "Imagen guardada en: ${imageUri?.path}", Toast.LENGTH_LONG).show()
+                //Toast.makeText(this, "Imagen guardada en: ${imageUri?.path}", Toast.LENGTH_LONG).show()
+                setResult(Activity.RESULT_OK)
+                finish() // Cierra este activity y regresa a MostrasDatos
             } else {
                 Toast.makeText(this, "Error al tomar la foto", Toast.LENGTH_SHORT).show()
             }
@@ -64,6 +64,7 @@ class Veterinario : AppCompatActivity() {
         compInicio()
         inicioListener()
     }
+
     private fun compInicio() {
         numEsc1 = findViewById(R.id.numEsc1)
         selectEsc1 = findViewById(R.id.selectEsc1)
@@ -71,12 +72,10 @@ class Veterinario : AppCompatActivity() {
         selectEsc2 = findViewById(R.id.selectEsc2)
         nombre = findViewById(R.id.nombre)
         btnGuardar = findViewById(R.id.btnGuardar)
-        btnArch = findViewById(R.id.btnArch)
         peso = findViewById(R.id.peso)
         edad = findViewById(R.id.edad)
     }
     private fun inicioListener(){
-
         selectEsc1.addOnChangeListener { selectEsc1, value, _ ->
             val df = DecimalFormat("#.##")
             val esc1 = df.format(value)
@@ -96,29 +95,18 @@ class Veterinario : AppCompatActivity() {
             val csvData = "$name,$edAd,$peSo,$escala1,$escala2\n"
             val fotoName = "$name,$edAd,$peSo,$escala1,$escala2"
             if (name.isNotEmpty() && peSo.isNotEmpty() && edAd.isNotEmpty()){
-                verificarPermisoCamara(csvData, name, fotoName)//funcion pedir permiso camara
+                verificarPermisoCamara(csvData, fotoName)//funcion pedir permiso camara
             } else {
                 Toast.makeText(this, "Por favor ingresa los datos", Toast.LENGTH_SHORT).show()
             }
         }
-        btnArch.setOnClickListener {// Ver datos
-            val intent = Intent(this, MostrasDatos::class.java)
-            startActivity(intent)
-        }
     }
 
-    private fun verificarPermisoCamara(csvData:String, name:String, fotoName: String) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            guardarDatos(csvData, name, fotoName) // Si el permiso ya está concedido, guardar los datos
-        } else {
-            mostrarDialogoPermiso() // Si no, mostrar mensaje de permisos
-        }
-    }
-    private fun guardarDatos(csvData:String, name:String, fotoName: String) {
-        //Al presionar "ARCHIVAR" los campos se ponen en blanco
-        nombre.setText("")// borra el campo de edittext
+    private fun guardarDatos(csvData:String, fotoName: String) {
+        //Al presionar "GUARDAR" los campos se ponen en blanco
+        nombre.text.clear()// borra el campo de edittext
         edad.text.clear()// otra forma de borrar el campo de edittext
-        peso.setText("")
+        peso.text.clear()
         selectEsc1.setValues(0f) //con esto el rangeslider regresa a posición 0
         selectEsc2.setValues(0f)
         val file = File(carpetaDat, "Datos.txt") //permite guardar txt en directorio publico Documentos
@@ -130,20 +118,13 @@ class Veterinario : AppCompatActivity() {
                 writer.write("Nombre, Edad, Peso, Escala 1, Escala 2\n")
                 //Se escribe como encabezado del archivo al solo crearse
                 writer.close()
-                tomarFoto(fotoName)//agregar desde aquí time stamp
+                tomarFoto(fotoName)
             }
             val fileWriter = FileWriter(file, true)
             fileWriter.append(csvData)  // Agregar los datos al archivo
             fileWriter.flush()
             fileWriter.close()//Si no se pone este comando no se guarda el dato
             Toast.makeText(this, "Datos guardados con éxito", Toast.LENGTH_SHORT).show()
-            val sharedPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE)
-            val nombres = mutableSetOf<String>()
-            // Obtiene la lista de nombres existente y agrega el nuevo
-            nombres.add(name) //Crea el boton con el nombre guardado
-            val editor = sharedPreferences.edit()
-            editor.putStringSet("Nombres", nombres)
-            editor.apply()
             tomarFoto(fotoName)//agregar desde aquí time stamp
         } catch (e: IOException){
             e.printStackTrace()
@@ -153,20 +134,24 @@ class Veterinario : AppCompatActivity() {
         /storage/self/primary/Android/data/com.example.proyectoresidencias/files/Documents/Datos.csv
          */
     }
-    //ABRIR ARCHIVO DESDE LA APP
-    private fun tomarFoto(fotoName:String){
-        //val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        //val fotName = "$fotoName"//"$name$timeStamp"
+    private fun tomarFoto(fotoName: String) {
         val photoFile = File(carpetaDat, "$fotoName.jpg")
-        photoFile.createNewFile()
-        if (!photoFile.createNewFile()) {
-            imageUri = FileProvider.getUriForFile(this, "${packageName}.provider", photoFile)
-            cameraLauncher.launch(imageUri!!)
-        } else {
-            Toast.makeText(this, "No se pudo crear el archivo", Toast.LENGTH_SHORT).show()
+        if (!photoFile.exists()) {
+            photoFile.createNewFile()
         }
+
+        imageUri = FileProvider.getUriForFile(this, "${packageName}.provider", photoFile)
+
+        cameraLauncher.launch(imageUri!!)
     }
 
+    private fun verificarPermisoCamara(csvData:String, fotoName: String) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            guardarDatos(csvData, fotoName) // Si el permiso ya está concedido, guardar los datos
+        } else {
+            mostrarDialogoPermiso() // Si no, mostrar mensaje de permisos
+        }
+    }
     private fun mostrarDialogoPermiso() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Permiso necesario")
@@ -177,13 +162,13 @@ class Veterinario : AppCompatActivity() {
         builder.setNegativeButton("Cancelar", null)
         builder.show()
     }
-
     private fun abrirConfiguracionApp() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", packageName, null)
         }
         startActivity(intent)
     }
+
 }
 
 
